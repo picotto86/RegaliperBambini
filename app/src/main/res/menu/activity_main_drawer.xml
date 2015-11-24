@@ -3,33 +3,30 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_camera"
+            android:id="@+id/nav_eta"
             android:icon="@drawable/ic_menu_camera"
-            android:title="Import" />
+            android:title="Ricerca per Età" />
         <item
-            android:id="@+id/nav_gallery"
+            android:id="@+id/nav_problema"
             android:icon="@drawable/ic_menu_gallery"
-            android:title="Gallery" />
+            android:title="Ricerca per Problema" />
         <item
-            android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="Slideshow" />
-        <item
-            android:id="@+id/nav_manage"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="Tools" />
+            android:id="@+id/nav_tutti"
+            android:icon="@drawable/ic_menu_gallery"
+            android:title="Visualizza tutti" />
+
     </group>
 
-    <item android:title="Communicate">
+    <item android:title="Comunicazione">
         <menu>
             <item
                 android:id="@+id/nav_share"
                 android:icon="@drawable/ic_menu_share"
-                android:title="Share" />
+                android:title="Condividi" />
             <item
                 android:id="@+id/nav_send"
                 android:icon="@drawable/ic_menu_send"
-                android:title="Send" />
+                android:title="Invia" />
         </menu>
     </item>
 

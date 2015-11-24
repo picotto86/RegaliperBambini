@@ -1,14 +1,16 @@
 package com.picotto86.regaliperbambini;
 
-import android.app.Fragment;
+
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.FragmentActivity;
-import android.view.View;
-import android.support.design.widget.NavigationView;
+import android.support.v7.widget.CardView;
+
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.view.View;
+import android.support.design.widget.NavigationView;
+
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -81,29 +83,34 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
 
-        android.support.v4.app.Fragment fragment = null;
+       android.support.v4.app.Fragment fragment = null;
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
+        if (id == R.id.nav_eta) {
             // Handle the camera action
 
             fragment = new RicercaPerEta();
 
-        } else if (id == R.id.nav_gallery) {
+        } else if (id == R.id.nav_problema) {
 
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
+            fragment= new RicercaPerProblema();
 
         } else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_send) {
 
+        } else if (id == R.id.nav_tutti){
+
+            fragment= new VisualizzaTutti();
         }
 
         if (fragment != null) {
-            android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
-            fragmentManager.beginTransaction().replace(R.id.drawer_layout, fragment).commit();
+            android.support.v4.app.FragmentManager ft = getSupportFragmentManager();
+// Replace the contents of the container with the new fragment
+            ft.beginTransaction().replace(R.id.main_layout, fragment).commit();
+// or ft.add(R.id.your_placeholder, new FooFragment());
+// Complete the changes added above
+
 
 
             DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
