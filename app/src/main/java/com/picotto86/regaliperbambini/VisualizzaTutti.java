@@ -1,5 +1,6 @@
 package com.picotto86.regaliperbambini;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -7,6 +8,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,9 +43,9 @@ public class VisualizzaTutti extends android.support.v4.app.Fragment {
         llm.setOrientation(LinearLayoutManager.VERTICAL);
         recList.setLayoutManager(llm);
 
-        Regalo r=new Regalo("ciao");
-
-        result.add(r);
+       
+        createList();
+        
 
         ca = new RegaloAdapter(result);
         recList.setAdapter(ca);
@@ -49,5 +53,26 @@ public class VisualizzaTutti extends android.support.v4.app.Fragment {
         return rootView;
     }
 
+    private void createList() {
 
+        new DownloadRis().execute();
+
+    }
+
+
+    private class DownloadRis extends AsyncTask<Void, Void, List<Regalo>> {
+
+        public DownloadRis(){
+
+            result=new ArrayList<Regalo>();
+
+        }
+
+        @Override
+        protected List<Regalo> doInBackground(Void... params) {
+
+
+            return result;
+        }
+    }
 }
