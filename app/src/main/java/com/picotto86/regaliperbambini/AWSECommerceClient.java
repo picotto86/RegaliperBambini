@@ -30,7 +30,7 @@ public class AWSECommerceClient {
      Update url according to your local location, see a list of supported location at the end of the wsdl:
      http://webservices.amazon.com/AWSECommerceService/AWSECommerceService.wsdl
      */
-    public static String AWSCEServiceURLString = "https://webservices.amazon.com/onca/soap?Service=AWSECommerceService";
+    public static String AWSCEServiceURLString = "https://webservices.amazon.it/onca/soap?Service=AWSECommerceService";
 
     /** Use this to specify the AWS Access Key ID */
     public static String AWSAccessKeyId = "AKIAIC7VP3EINDEFKPDQ";
