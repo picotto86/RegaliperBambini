@@ -136,7 +136,7 @@ public class VisualizzaTutti extends android.support.v4.app.Fragment {
                                     ItemSearch request = new ItemSearch();
                                     request.associateTag = "teg"; // seems any tag is ok
                                     request.shared = new ItemSearchRequest();
-                                    request.shared.searchIndex = "Books";
+                                    request.shared.searchIndex = "Baby";
                                     request.shared.responseGroup = new ArrayList<String>();
                                     request.shared.responseGroup.add("Images");
                                     request.shared.responseGroup.add("Small");
