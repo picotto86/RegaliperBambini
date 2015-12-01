@@ -1,6 +1,9 @@
 package com.picotto86.regaliperbambini;
 
 import android.app.Dialog;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -11,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.amazon.webservices.awsecommerceservice._2011_08_01.Errors;
@@ -47,7 +51,8 @@ public class VisualizzaTutti extends android.support.v4.app.Fragment {
     RecyclerView recList;
     LinearLayoutManager llm;
     int posizione;
-
+    WebImageView imageView;
+    Item item;
 
     View rootView;
 
@@ -109,12 +114,76 @@ public class VisualizzaTutti extends android.support.v4.app.Fragment {
 
                             posizione=position;
 
+                            AWSECommerceServicePortType_SOAPClient client = AWSECommerceClient.getSharedClient();
+                            client.setDebug(true);
+                            ItemSearch request = new ItemSearch();
+                            request.associateTag = "teg"; // seems any tag is ok
+                            request.shared = new ItemSearchRequest();
+                            request.shared.searchIndex = "Baby";
+                            request.shared.responseGroup = new ArrayList<String>();
+                            request.shared.responseGroup.add("Images");
+                            request.shared.responseGroup.add("Medium");
+                            ItemSearchRequest itemSearchRequest = new ItemSearchRequest();
+                            itemSearchRequest.title = (result.get(posizione).nome);
+                            request.request = new ArrayList<ItemSearchRequest>();
+                            request.request.add(itemSearchRequest);
+                            AWSECommerceClient.authenticateRequest("ItemSearch");
+                            client.itemSearch(request, new SOAPServiceCallback<ItemSearchResponse>() {
+
+                                @Override
+                                public void onSuccess(ItemSearchResponse responseObject) {
+                                    // success handling logic
+                                    if (responseObject.items != null && responseObject.items.size() > 0) {
+                                        Items items = responseObject.items.get(0);
+                                        if (items.item != null && items.item.size() > 0) {
+                                            item = items.item.get(0);
+
+                                            imageView.setImageUrl(item.mediumImage.url);
+                                            imageView.loadImage();
+
+                                            Toast.makeText(rootView.getContext(), item.itemAttributes.title, Toast.LENGTH_LONG).show();
+                                        } else {
+                                            Toast.makeText(rootView.getContext(), "No result", Toast.LENGTH_LONG).show();
+                                        }
+
+                                    } else {
+                                        if (responseObject.operationRequest != null && responseObject.operationRequest.errors != null) {
+                                            Errors errors = responseObject.operationRequest.errors;
+                                            if (errors.error != null && errors.error.size() > 0) {
+                                                com.amazon.webservices.awsecommerceservice._2011_08_01.errors.Error error = errors.error.get(0);
+                                                Toast.makeText(rootView.getContext(), error.message, Toast.LENGTH_LONG).show();
+                                            } else {
+                                                Toast.makeText(rootView.getContext(), "No result", Toast.LENGTH_LONG).show();
+                                            }
+                                        } else {
+                                            Toast.makeText(rootView.getContext(), "No result", Toast.LENGTH_LONG).show();
+                                        }
+                                    }
+
+                                }
+
+                                @Override
+                                public void onFailure(Throwable error, String errorMessage) { // http or parsing error
+                                    Toast.makeText(rootView.getContext(), errorMessage, Toast.LENGTH_LONG).show();
+                                }
+
+                                @Override
+                                public void onSOAPFault(Object soapFault) { // soap fault
+                                    com.leansoft.nano.soap11.Fault fault = (com.leansoft.nano.soap11.Fault) soapFault;
+                                    Toast.makeText(rootView.getContext(), fault.faultstring, Toast.LENGTH_LONG).show();
+                                }
+
+                            });
+
                             final Dialog dialog = new Dialog(view.getContext());
 
                             dialog.setContentView(R.layout.dialog);
 
                             Button buttonCancel = (Button) dialog.findViewById(R.id.buttonCancel);
                             buttonCancel.setText("Cancel");
+
+                            imageView=(WebImageView)dialog.findViewById(R.id.imageView3);
+
 
                             buttonCancel.setOnClickListener(new View.OnClickListener() {
                                 @Override
@@ -131,62 +200,12 @@ public class VisualizzaTutti extends android.support.v4.app.Fragment {
                                 @Override
                                 public void onClick(View v) {
 
-                                    AWSECommerceServicePortType_SOAPClient client = AWSECommerceClient.getSharedClient();
-                                    client.setDebug(true);
-                                    ItemSearch request = new ItemSearch();
-                                    request.associateTag = "teg"; // seems any tag is ok
-                                    request.shared = new ItemSearchRequest();
-                                    request.shared.searchIndex = "Baby";
-                                    request.shared.responseGroup = new ArrayList<String>();
-                                    request.shared.responseGroup.add("Images");
-                                    request.shared.responseGroup.add("Small");
-                                    ItemSearchRequest itemSearchRequest = new ItemSearchRequest();
-                                    itemSearchRequest.title = (result.get(posizione).nome);
-                                    request.request = new ArrayList<ItemSearchRequest>();
-                                    request.request.add(itemSearchRequest);
-                                    AWSECommerceClient.authenticateRequest("ItemSearch");
-                                    client.itemSearch(request, new SOAPServiceCallback<ItemSearchResponse>() {
 
-                                        @Override
-                                        public void onSuccess(ItemSearchResponse responseObject) {
-                                            // success handling logic
-                                            if (responseObject.items != null && responseObject.items.size() > 0) {
-                                                Items items = responseObject.items.get(0);
-                                                if (items.item != null && items.item.size() > 0) {
-                                                    Item item = items.item.get(0);
-                                                    Toast.makeText(rootView.getContext(), item.itemAttributes.title, Toast.LENGTH_LONG).show();
-                                                } else {
-                                                    Toast.makeText(rootView.getContext(), "No result", Toast.LENGTH_LONG).show();
-                                                }
+                                    String url =item.detailPageURL;
+                                    Intent i = new Intent(Intent.ACTION_VIEW);
+                                    i.setData(Uri.parse(url));
+                                    startActivity(i);
 
-                                            } else {
-                                                if (responseObject.operationRequest != null && responseObject.operationRequest.errors != null) {
-                                                    Errors errors = responseObject.operationRequest.errors;
-                                                    if (errors.error != null && errors.error.size() > 0) {
-                                                        com.amazon.webservices.awsecommerceservice._2011_08_01.errors.Error error = errors.error.get(0);
-                                                        Toast.makeText(rootView.getContext(), error.message, Toast.LENGTH_LONG).show();
-                                                    } else {
-                                                        Toast.makeText(rootView.getContext(), "No result", Toast.LENGTH_LONG).show();
-                                                    }
-                                                } else {
-                                                    Toast.makeText(rootView.getContext(), "No result", Toast.LENGTH_LONG).show();
-                                                }
-                                            }
-
-                                        }
-
-                                        @Override
-                                        public void onFailure(Throwable error, String errorMessage) { // http or parsing error
-                                            Toast.makeText(rootView.getContext(), errorMessage, Toast.LENGTH_LONG).show();
-                                        }
-
-                                        @Override
-                                        public void onSOAPFault(Object soapFault) { // soap fault
-                                            com.leansoft.nano.soap11.Fault fault = (com.leansoft.nano.soap11.Fault) soapFault;
-                                            Toast.makeText(rootView.getContext(), fault.faultstring, Toast.LENGTH_LONG).show();
-                                        }
-
-                                    });
                                     dialog.dismiss();
 
                                 }
