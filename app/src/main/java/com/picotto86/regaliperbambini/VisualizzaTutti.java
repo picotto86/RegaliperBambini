@@ -10,7 +10,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
 
+import com.amazon.webservices.awsecommerceservice._2011_08_01.Errors;
+import com.amazon.webservices.awsecommerceservice._2011_08_01.Item;
+import com.amazon.webservices.awsecommerceservice._2011_08_01.ItemSearch;
+import com.amazon.webservices.awsecommerceservice._2011_08_01.ItemSearchRequest;
+import com.amazon.webservices.awsecommerceservice._2011_08_01.ItemSearchResponse;
+import com.amazon.webservices.awsecommerceservice._2011_08_01.Items;
+import com.amazon.webservices.awsecommerceservice._2011_08_01.client.AWSECommerceServicePortType_SOAPClient;
+import com.leansoft.nano.ws.SOAPServiceCallback;
+
+import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,6 +46,7 @@ public class VisualizzaTutti extends android.support.v4.app.Fragment {
     RegaloAdapter ca;
     RecyclerView recList;
     LinearLayoutManager llm;
+    int posizione;
 
 
     View rootView;
@@ -78,7 +91,7 @@ public class VisualizzaTutti extends android.support.v4.app.Fragment {
         protected void onPostExecute(List<Regalo> list) {
 
 
-            ca=new RegaloAdapter(result);
+            ca = new RegaloAdapter(result);
 
             recList.setAdapter(ca);
 
@@ -86,19 +99,22 @@ public class VisualizzaTutti extends android.support.v4.app.Fragment {
             ca.notifyDataSetChanged();
 
 
-
             recList.addOnItemTouchListener(
                     new RecyclerItemClickListener(rootView.getContext(), new RecyclerItemClickListener.OnItemClickListener() {
-                        @Override public void onItemClick(View view, int position) {
+                        @Override
+                        public void onItemClick(View view, int position) {
                             // TODO Handle item click
 
-                            Log.d("D;","toccato "+result.get(position).nome);
+                            Log.d("D;", "toccato " + result.get(position).nome);
+
+                            posizione=position;
 
                             final Dialog dialog = new Dialog(view.getContext());
 
                             dialog.setContentView(R.layout.dialog);
 
                             Button buttonCancel = (Button) dialog.findViewById(R.id.buttonCancel);
+                            buttonCancel.setText("Cancel");
 
                             buttonCancel.setOnClickListener(new View.OnClickListener() {
                                 @Override
@@ -111,25 +127,74 @@ public class VisualizzaTutti extends android.support.v4.app.Fragment {
                             buttonOk.setText(result.get(position).nome);
 
                             buttonOk.setOnClickListener(new View.OnClickListener() {
+
                                 @Override
                                 public void onClick(View v) {
 
+                                    AWSECommerceServicePortType_SOAPClient client = AWSECommerceClient.getSharedClient();
+                                    client.setDebug(true);
+                                    ItemSearch request = new ItemSearch();
+                                    request.associateTag = "teg"; // seems any tag is ok
+                                    request.shared = new ItemSearchRequest();
+                                    request.shared.searchIndex = "Books";
+                                    request.shared.responseGroup = new ArrayList<String>();
+                                    request.shared.responseGroup.add("Images");
+                                    request.shared.responseGroup.add("Small");
+                                    ItemSearchRequest itemSearchRequest = new ItemSearchRequest();
+                                    itemSearchRequest.title = (result.get(posizione).nome);
+                                    request.request = new ArrayList<ItemSearchRequest>();
+                                    request.request.add(itemSearchRequest);
+                                    AWSECommerceClient.authenticateRequest("ItemSearch");
+                                    client.itemSearch(request, new SOAPServiceCallback<ItemSearchResponse>() {
+
+                                        @Override
+                                        public void onSuccess(ItemSearchResponse responseObject) {
+                                            // success handling logic
+                                            if (responseObject.items != null && responseObject.items.size() > 0) {
+                                                Items items = responseObject.items.get(0);
+                                                if (items.item != null && items.item.size() > 0) {
+                                                    Item item = items.item.get(0);
+                                                    Toast.makeText(rootView.getContext(), item.itemAttributes.title, Toast.LENGTH_LONG).show();
+                                                } else {
+                                                    Toast.makeText(rootView.getContext(), "No result", Toast.LENGTH_LONG).show();
+                                                }
+
+                                            } else {
+                                                if (responseObject.operationRequest != null && responseObject.operationRequest.errors != null) {
+                                                    Errors errors = responseObject.operationRequest.errors;
+                                                    if (errors.error != null && errors.error.size() > 0) {
+                                                        com.amazon.webservices.awsecommerceservice._2011_08_01.errors.Error error = errors.error.get(0);
+                                                        Toast.makeText(rootView.getContext(), error.message, Toast.LENGTH_LONG).show();
+                                                    } else {
+                                                        Toast.makeText(rootView.getContext(), "No result", Toast.LENGTH_LONG).show();
+                                                    }
+                                                } else {
+                                                    Toast.makeText(rootView.getContext(), "No result", Toast.LENGTH_LONG).show();
+                                                }
+                                            }
+
+                                        }
+
+                                        @Override
+                                        public void onFailure(Throwable error, String errorMessage) { // http or parsing error
+                                            Toast.makeText(rootView.getContext(), errorMessage, Toast.LENGTH_LONG).show();
+                                        }
+
+                                        @Override
+                                        public void onSOAPFault(Object soapFault) { // soap fault
+                                            com.leansoft.nano.soap11.Fault fault = (com.leansoft.nano.soap11.Fault) soapFault;
+                                            Toast.makeText(rootView.getContext(), fault.faultstring, Toast.LENGTH_LONG).show();
+                                        }
+
+                                    });
                                     dialog.dismiss();
-
-                                    //intent
-
-
 
                                 }
                             });
-
                             dialog.show();
-
-
-
                         }
-                    })
-            );
+
+                    }));
 
 
         }
@@ -169,7 +234,7 @@ public class VisualizzaTutti extends android.support.v4.app.Fragment {
             }
             String response = null;
             try {
-                response = org.apache.commons.io.IOUtils.toString(in, "UTF-8");
+                response = IOUtils.toString(in, "UTF-8");
             } catch (IOException e) {
                 e.printStackTrace();
             }
