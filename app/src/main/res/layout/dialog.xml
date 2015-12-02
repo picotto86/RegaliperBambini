@@ -3,13 +3,21 @@
     android:orientation="horizontal" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:id="@+id/textView4"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+
     <com.picotto86.regaliperbambini.WebImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/imageView3"
         android:minHeight="200dp"
         android:minWidth="200dp"
-        android:layout_alignParentTop="true"
+        android:layout_below="@+id/textView4"
         android:layout_centerHorizontal="true" />
 
     <Button
@@ -17,16 +25,16 @@
         android:layout_height="wrap_content"
         android:text="New Button"
         android:id="@+id/buttonCancel"
-        android:layout_below="@+id/imageView3"
-        android:layout_alignLeft="@+id/imageView3"
-        android:layout_alignStart="@+id/imageView3" />
+        android:layout_alignBottom="@+id/imageView3"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="New Button"
         android:id="@+id/buttonOk"
-        android:layout_below="@+id/imageView3"
-        android:layout_toRightOf="@+id/buttonCancel"
-        android:layout_toEndOf="@+id/buttonCancel" />
+        android:layout_alignBottom="@+id/imageView3"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 </RelativeLayout>

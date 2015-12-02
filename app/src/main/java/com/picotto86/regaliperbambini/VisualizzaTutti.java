@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.amazon.webservices.awsecommerceservice._2011_08_01.Errors;
@@ -50,6 +51,7 @@ public class VisualizzaTutti extends android.support.v4.app.Fragment {
     int posizione;
     WebImageView imageView;
     Item item;
+    TextView textTitle;
 
     View rootView;
 
@@ -135,8 +137,10 @@ public class VisualizzaTutti extends android.support.v4.app.Fragment {
                                         if (items.item != null && items.item.size() > 0) {
                                             item = items.item.get(0);
 
-                                            imageView.setImageUrl(item.mediumImage.url);
+                                            imageView.setImageUrl(item.largeImage.url);
                                             imageView.loadImage();
+
+                                            textTitle.setText(item.itemAttributes.title);
 
                                             Toast.makeText(rootView.getContext(), item.itemAttributes.title, Toast.LENGTH_LONG).show();
                                         } else {
@@ -180,6 +184,7 @@ public class VisualizzaTutti extends android.support.v4.app.Fragment {
                             buttonCancel.setText("Cancel");
 
                             imageView=(WebImageView)dialog.findViewById(R.id.imageView3);
+                            textTitle=(TextView)dialog.findViewById(R.id.textView4);
 
 
                             buttonCancel.setOnClickListener(new View.OnClickListener() {
@@ -190,7 +195,7 @@ public class VisualizzaTutti extends android.support.v4.app.Fragment {
                             });
 
                             Button buttonOk = (Button) dialog.findViewById(R.id.buttonOk);
-                            buttonOk.setText(result.get(position).nome);
+                            buttonOk.setText("Vai a Amazon");
 
                             buttonOk.setOnClickListener(new View.OnClickListener() {
 
